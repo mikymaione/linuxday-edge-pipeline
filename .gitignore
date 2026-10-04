@@ -1,0 +1,16 @@
+# Cartella di build di Cargo/Rust
+/target/
+
+# File e log di runtime di Spin
+/.spin/
+
+# File SQLite locali
+*.db
+*.sqlite
+*.sqlite3
+
+# Artefatti di compilazione e lockfile vari
+**/*.rs.bk
+
+# Impostazioni di VS Code (opzionale)
+.vscode/

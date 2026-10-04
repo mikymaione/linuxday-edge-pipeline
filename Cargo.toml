@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "edge-gateway",
+    "data-enricher",
+    "audit-logger",
+]
+resolver = "2"

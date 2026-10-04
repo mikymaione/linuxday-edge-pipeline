@@ -1,0 +1,39 @@
+spin_manifest_version = 2
+
+[application]
+name = "linuxday-edge-pipeline"
+version = "0.1.0"
+authors = ["Michele Maione"]
+description = "Pipeline edge con Spin per il Linux Day"
+
+[[trigger.http]]
+route = "/api/..."
+component = "edge-gateway"
+
+[component.edge-gateway]
+source = "target/wasm32-wasip1/release/edge_gateway.wasm"
+allowed_outbound_hosts = ["http://127.0.0.1:*", "http://localhost:*"]
+[component.edge-gateway.build]
+command = "cargo build --target wasm32-wasip1 --release"
+workdir = "edge-gateway"
+
+[[trigger.http]]
+route = "/enrich"
+component = "data-enricher"
+
+[component.data-enricher]
+source = "target/wasm32-wasip1/release/data_enricher.wasm"
+[component.data-enricher.build]
+command = "cargo build --target wasm32-wasip1 --release"
+workdir = "data-enricher"
+
+[[trigger.http]]
+route = "/audit"
+component = "audit-logger"
+
+[component.audit-logger]
+source = "target/wasm32-wasip1/release/audit_logger.wasm"
+sqlite_databases = ["default"]
+[component.audit-logger.build]
+command = "cargo build --target wasm32-wasip1 --release"
+workdir = "audit-logger"
