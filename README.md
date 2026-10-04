@@ -1,6 +1,6 @@
 # Linux Day Edge Pipeline
 
-Un'architettura di elaborazione dati *edge* e *microservices-in-Wasm* basata su **Spin v4.2.1** e **Rust**.
+Un'architettura di elaborazione dati *edge* e *microservices-in-Wasm* basata su **Spin v4.2.1** e **Rust**, progettata per essere eseguita in locale su **Linux** o distribuita su **Fermyon Cloud**.
 
 ## 📐 Architettura
 
@@ -17,7 +17,7 @@ Il progetto è organizzato come una **Cargo Workspace** composta da tre componen
               │  edge-gateway     │
               └────┬─────────┬────┘
                    │         │
-   POST /enrich    │         │   POST /audit
+      POST /enrich │         │ POST /audit
                    ▼         ▼
 ┌────────────────────────┐ ┌────────────────────────┐
 │     data-enricher      │ │      audit-logger      │
@@ -32,8 +32,40 @@ Il progetto è organizzato come una **Cargo Workspace** composta da tre componen
 
 ---
 
-## 🛠️ Requisiti di Sistema (Debian 13)
-Richiede **Spin CLI v4.2.1** installato nel sistema (`/usr/local/bin/spin`).
+## 🌐 Live Demo & Cloud Deployment
+
+L'applicazione è attualmente pubblicata su **Fermyon Cloud**:
+
+* **Dashboard di gestione**: [linuxday-edge-pipeline su Fermyon Cloud](https://cloud.fermyon.com/app/linuxday-edge-pipeline/activity)
+* **Endpoint pubblico (API Gateway)**: `https://linuxday-edge-pipeline.fermyon.app/api/...`
+
+### Test End-to-End dell'endpoint Cloud
+
+```bash
+curl -i -X POST https://linuxday-edge-pipeline.fermyon.app/api/test \
+  -H "Content-Type: application/json" \
+  -d '{"event": "Linux Day 2026", "status": "active"}'
+
+```
+
+---
+
+## 🛠️ Requisiti di Sistema (Debian)
+
+Tutti i prerequisiti si installano tramite APT nativo:
+
+```bash
+sudo apt update
+sudo apt install -y build-essential git pkg-config libssl-dev rustc cargo libstd-rust-dev-wasm32
+
+```
+
+Richiede inoltre **Spin CLI v4.2.1** installato nel sistema (`/usr/local/bin/spin`) con il plugin `cloud`:
+
+```bash
+spin plugin install cloud
+
+```
 
 ---
 
@@ -73,48 +105,39 @@ Gli artefatti `.wasm` verranno generati all'interno della cartella `target/wasm3
 
 ---
 
-## 🏃 Esecuzione
+## 🏃 Esecuzione Locale e Deploy
 
-Avvia il runtime Spin:
+### Avvio locale
 
 ```bash
 spin up
 
 ```
 
-L'applicazione sarà in ascolto su `[http://127.0.0.1:3000](http://127.0.0.1:3000)` con le seguenti rotte attive:
+L'applicazione sarà in ascolto su `http://127.0.0.1:3000`.
 
-* `[http://127.0.0.1:3000/api/](http://127.0.0.1:3000/api/)...` (`edge-gateway`)
-* `[http://127.0.0.1:3000/enrich](http://127.0.0.1:3000/enrich)` (`data-enricher`)
-* `[http://127.0.0.1:3000/audit](http://127.0.0.1:3000/audit)` (`audit-logger`)
+### Deploy su Fermyon Cloud
+
+```bash
+spin cloud login
+spin cloud deploy
+
+```
 
 ---
 
-## 🧪 Testing End-to-End
+## 🧪 Testing Locale
 
-Invia una richiesta di prova al Gateway tramite `curl`:
+Invia una richiesta di prova al Gateway locale:
 
 ```bash
-curl -i -X POST http://127.0.0.1:3000/api/test \
+curl -i -X POST [http://127.0.0.1:3000/api/test](http://127.0.0.1:3000/api/test) \
   -H "Content-Type: application/json" \
   -d '{"event": "Linux Day 2026", "status": "active"}'
 
 ```
 
-### Verifica Risposta
-
-Dovresti ricevere uno stato `HTTP/1.1 200 OK` con il payload arricchito:
-
-```json
-{
-  "event": "Linux Day 2026",
-  "status": "active",
-  "processed_by": "data-enricher-edge"
-}
-
-```
-
-### Verifica Audit Log (SQLite)
+### Verifica Audit Log (SQLite Locale)
 
 Per verificare che l'evento sia stato registrato nel database SQLite interno di Spin (`.spin/sqlite_db.db`):
 
@@ -127,6 +150,6 @@ sqlite3 .spin/sqlite_db.db "SELECT * FROM audit_logs;"
 
 ## 📜 Licenza
 
-Copyright 2026 (c) [MAIONE MIKY]. All rights reserved.
+Questo progetto è software libero ed è distribuito sotto i termini della licenza [GNU General Public License v3.0](https://www.google.com/search?q=LICENSE).
 
-Questo progetto è software libero ed è distribuito sotto i termini della licenza [GNU General Public License v3.0](LICENSE)
+Copyright 2026 (c) [MAIONE MIKY]. All rights reserved.
